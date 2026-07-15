@@ -61,6 +61,72 @@ Bukan suruh mereka ngapain. Tapi kasih informasi supaya keputusan mereka lebih i
 
 ---
 
+## Rekomendasi Solusi yang Diberikan App
+
+App gak cuma kasih data — tapi kasih **actionable advice** berdasarkan kombinasi risk + price prediction:
+
+### Tipe Rekomendasi
+
+| Kondisi | Rekomendasi | Contoh |
+|---------|-------------|--------|
+| Weather risk LOW + harga naik | ✅ **Tanam sekarang** | "Cuaca aman, harga diprediksi naik 4% saat panen. Waktu ideal." |
+| Weather risk MEDIUM + harga naik | ⚠️ **Tanam dengan mitigasi** | "Harga bagus, tapi curah hujan rendah. Siapkan irigasi cadangan." |
+| Weather risk HIGH + harga turun | 🔴 **Tunda tanam** | "Risiko kekeringan tinggi + oversupply predicted. Tunda 2-4 minggu." |
+| Pest risk HIGH | 🐛 **Siapkan preventif** | "Kelembapan 86% + suhu 27°C → risiko blast & wereng. Siapkan pestisida." |
+| Harga komoditas A turun, B naik | 🔄 **Pertimbangkan switch** | "Harga beras flat, tapi cabai predicted naik 20%. Pertimbangkan diversifikasi." |
+
+### Contoh Output Lengkap
+
+```
+📍 Lokasi: Karawang, Jawa Barat
+🌾 Komoditas: Beras
+📅 Rencana tanam: Juli 2026
+
+━━━ HASIL SIMULASI ━━━
+
+💰 Prediksi harga panen (Nov 2026): Rp 13.200 - Rp 14.800/kg
+   Sekarang: Rp 12.900/kg → Potensi profit: +4.3%
+
+⛅ Weather Risk: 65/100 (MEDIUM)
+   Curah hujan 35% di bawah rata-rata historis bulan ini
+
+🐛 Pest Risk: 72/100 (HIGH)
+   Kelembapan 86% + suhu 27°C → risiko blast & wereng
+
+━━━ REKOMENDASI ━━━
+
+✅ TANAM — tapi dengan mitigasi:
+  1. Siapkan irigasi cadangan (curah hujan rendah)
+  2. Aplikasi fungisida preventif minggu ke-3 (risiko blast tinggi)
+  3. Monitoring wereng intensif di fase vegetatif
+
+💡 Alternatif: Tunda 2 minggu — curah hujan diprediksi naik di akhir Juli.
+   Risk score akan turun ke ~45 (LOW).
+```
+
+### Logic di Balik Rekomendasi
+
+```
+IF weather_risk < 30 AND price_trend > 0:
+    → "Tanam sekarang, kondisi ideal"
+    
+IF weather_risk 30-60 AND price_trend > 0:
+    → "Tanam dengan mitigasi" + specific tips berdasarkan risk type
+    
+IF weather_risk > 60 OR price_trend < -5%:
+    → "Tunda tanam" + suggest kapan risk turun (what-if slider data)
+    
+IF pest_risk > 70:
+    → Tambah warning pestisida preventif
+    
+IF harga_komoditas_lain naik signifikan:
+    → "Pertimbangkan diversifikasi ke [komoditas]"
+```
+
+Rekomendasi ini **rule-based** (gak perlu ML tambahan) — derived dari output model yang udah ada.
+
+---
+
 ## Kenapa Ini Penting
 
 - Petani sekarang: tanam → berdoa → panen → baru tau harga jatuh
